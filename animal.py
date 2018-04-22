@@ -1,3 +1,6 @@
+import random
+
+
 class Animal:
     def __init__(self, power=1, gender=False):
         self.power = power
@@ -41,6 +44,13 @@ class Animal:
 
 class Fish(Animal):
     AGE = 5
+    All = []
+
+    def __init__(self):
+        super().__init__(gender=random.choice([True, False]),
+                         power=round(random.uniform(0.0, 1.0), 3))
+        Fish.All.append(self)
+        Fish.All.sort(key=lambda x: x.age)
 
     def act(self, other):
         check = super().act(other)
@@ -65,6 +75,13 @@ class Fish(Animal):
 
 class Bear(Animal):
     AGE = 10
+    All = []
+
+    def __init__(self):
+        super().__init__(gender=random.choice([True, False]),
+                         power=round(random.uniform(0.0, 1.0), 3))
+        Bear.All.append(self)
+        Bear.All.sort(key=lambda x: x.age)
 
     def act(self, other):
         check = super().act(other)
@@ -89,6 +106,13 @@ class Bear(Animal):
 
 class Otter(Animal):
     AGE = 12
+    All = []
+
+    def __init__(self):
+        super().__init__(gender=random.choice([True, False]),
+                         power=round(random.uniform(0.0, 1.0), 3))
+        Otter.All.append(self)
+        Otter.All.sort(key=lambda x: x.age)
 
     def act(self, other):
         check = super().act(other)

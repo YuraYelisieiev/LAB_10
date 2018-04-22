@@ -4,17 +4,43 @@ import animal
 
 class Ecosystem:
     def __init__(self):
-        self.river = [random.choice([[], [animal.Bear(
-            gender=random.choice([True, False]),
-            power=round(random.uniform(0.0, 1.0), 3))], [animal.Fish(
-            gender=random.choice([True, False]),
-            power=round(random.uniform(0.0, 1.0), 3))], [animal.Otter(
-            gender=random.choice([True, False]),
-            power=round(random.uniform(0.0, 1.0), 3))]]) for i
-                      in range(random.randint(3, 10))]
+        self.river = [random.choice(
+            [[], [animal.Bear()], [animal.Fish()], [animal.Otter()]]) for i in
+            range(random.randint(3, 10))]
         self.river_len = len(self.river)
         print(self.river)
         self.try_to_go()
+
+    def check_population(self):
+        otters = 0
+        bears = 0
+        fish = 0
+        for cell in self.river:
+            otters += sum(isinstance(x, animal.Otter) for x in cell)
+            bears += sum(isinstance(x, animal.Bear) for x in cell)
+            fish += sum(isinstance(x, animal.Fish) for x in cell)
+        amount = otters + bears + fish
+        if amount > 1 and otters / amount > 0.6:
+            old = animal.Otter.All.pop()
+            young = animal.Otter.All.pop(0)
+        elif amount > 1 and bears / amount > 0.6:
+            old = animal.Bear.All.pop()
+            young = animal.Bear.All.pop(0)
+        elif amount > 1 and fish / amount > 0.6:
+            old = animal.Fish.All.pop()
+            young = animal.Fish.All.pop(0)
+        else:
+            return
+        for cell in self.river:
+            if young in cell and old in cell and old != young:
+                cell.remove(old)
+                cell.remove(young)
+                break
+            elif young in cell:
+                cell.remove(young)
+            elif old in cell:
+                cell.remove(old)
+        self.check_population()
 
     def move(self, anm, old_ind, operator):
         if old_ind == 0:
@@ -35,7 +61,13 @@ class Ecosystem:
         self.river[new_ind].append(anm)
         if len(self.river[new_ind]) > 1:
             # take new elements after act as return and key "new"
-            ret = anm.act(self.river[new_ind][0])["new"]
+            ret = anm.act(self.river[new_ind][0])
+            ret, prev = ret['new'], ret['old']
+            for old_anm in prev:
+                if old_anm in anm.__class__.All:
+                    anm.__class__.All.remove(old_anm)
+            anm.__class__.All += ret
+            anm.__class__.All.sort(key=lambda x: x.age)
             # placing new objects in father square
             self.river[new_ind] = ret
             if len(self.river[new_ind]) > 2:
@@ -51,6 +83,7 @@ class Ecosystem:
     def try_to_go(self):
         # animals move 1 by 1
         for i in range(100):
+            self.check_population()
             for cell in self.river:
                 if cell:
                     # adding age in each iter
@@ -64,7 +97,8 @@ class Ecosystem:
                         # False = left
                         # None = right
                         operator = random.choice([True, False, None])
-                        self.move(cell[0], self.river.index(cell), operator)
+                        self.move(cell[0], self.river.index(cell),
+                                  operator)
                         print(self.river)
 
 
